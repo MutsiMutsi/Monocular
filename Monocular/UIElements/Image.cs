@@ -28,6 +28,7 @@ namespace Monocular.UIElements
 				Rect.Height = Size;
 			}
 
+			this.sourceRectangle = new Rectangle(0, 0, texture.Width, texture.Height);
 
 			Alignment = alignment;
 		}

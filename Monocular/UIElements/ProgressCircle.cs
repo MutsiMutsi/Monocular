@@ -22,7 +22,10 @@ namespace Monocular.UIElements
 
 		public override void Update(float dt)
 		{
-			label.Text = $"{(int)(Value * 100)}";
+			label.Text.Clear();
+			label.Text.Append($"{(int)(Value * 100)}");
+			label.Flush();
+
 			base.Update(dt);
 		}
 
@@ -35,6 +38,7 @@ namespace Monocular.UIElements
 
 			//Draw upper semi
 			sb.Draw(UIManager.Texture, new Rectangle(DrawRectangle.X + DrawRectangle.Width / 2, DrawRectangle.Y + DrawRectangle.Height / 2, DrawRectangle.Width, DrawRectangle.Height / 2), new Rectangle(48 + 48, 0, 48, 24), Color, RotationOffset + MathF.PI + MathHelper.Clamp(Value, 0f, .5f) * MathF.PI * 2.0f, new Vector2(48 / 2, 48 / 2), SpriteEffects.None, 0f);
+			
 			//Draw obscurer
 			sb.Draw(UIManager.Texture, new Rectangle(DrawRectangle.X + DrawRectangle.Width / 2, DrawRectangle.Y + DrawRectangle.Height / 2, DrawRectangle.Width - 5, DrawRectangle.Height / 2 - 5), new Rectangle(48, 0, 48, 24), Color, RotationOffset + MathF.PI, new Vector2(48 / 2, 48 / 2), SpriteEffects.None, 0f);
 

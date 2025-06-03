@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Monocular.Enum;
+using Monocular.Util;
 
 namespace Monocular.UIElements
 {
@@ -20,6 +21,8 @@ namespace Monocular.UIElements
 
 		public Action<InteractionState>? OnStateChanged = null;
 		public Action? OnClick;
+
+		public Func<bool> IsEnabled = () => { return true; };
 
 		public UIElement(Rect rect, Align alignment = Align.TopLeft)
 		{
@@ -102,7 +105,7 @@ namespace Monocular.UIElements
 			}
 		}
 
-		public virtual bool Input(KeyboardState ks, MouseState ms)
+		public virtual bool Input(KeyboardState ks, MouseInfo ms)
 		{
 			InteractionState currentState = State;
 
@@ -118,16 +121,16 @@ namespace Monocular.UIElements
 				}
 			}
 
-			if (!UIManager.LeftMouseButtonCaptured && DrawRectangle.Contains(ms.Position))
+			if (DrawRectangle.Contains(ms.Position))
 			{
+				if (OnClick != null)
+				{
+					UIManager.LeftMouseButtonCaptured = true;
+				}
 
 				State = InteractionState.Hover;
 				if (ms.LeftButton == ButtonState.Pressed)
 				{
-					if (OnClick != null)
-					{
-						UIManager.LeftMouseButtonCaptured = true;
-					}
 					State = InteractionState.Active;
 				}
 
@@ -137,31 +140,48 @@ namespace Monocular.UIElements
 				State = InteractionState.None;
 			}
 
-			foreach (UIElement child in Children)
+			for (int i = 0; i < Children.Count; i++)
 			{
-				_ = child.Input(ks, ms);
+				Children[i].Input(ks, ms);
 			}
 
 			if (State != currentState)
 			{
-				OnStateChanged?.Invoke(State);
-				UIManager.GlobalUIInteraction?.Invoke(State, currentState);
+				if (OnClick != null)
+				{
+					OnStateChanged?.Invoke(State);
+					UIManager.GlobalUIInteraction?.Invoke(State, currentState);
+				}
 			}
 
 			return UIManager.LeftMouseButtonCaptured;
 		}
 		public virtual void Update(float dt)
 		{
-			foreach (UIElement child in Children)
+			for (int i = 0; i < Children.Count; i++)
 			{
-				child.Update(dt);
+				var child = Children[i];
+				if (child.IsEnabled())
+					child.Update(dt);
 			}
 		}
 		public virtual void Render(SpriteBatch sb)
 		{
-			foreach (UIElement child in Children)
+			for (int i = 0; i < Children.Count; i++)
 			{
-				child.Render(sb);
+				var child = Children[i];
+				if (child.IsEnabled())
+					child.Render(sb);
+			}
+		}
+
+		public virtual void RenderText(SpriteBatch sb)
+		{
+			for (int i = 0; i < Children.Count; i++)
+			{
+				var child = Children[i];
+				if (child.IsEnabled())
+					child.RenderText(sb);
 			}
 		}
 	}

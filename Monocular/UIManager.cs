@@ -5,6 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Monocular.Enum;
 using Monocular.UIElements;
+using Monocular.Util;
 
 namespace Monocular
 {
@@ -26,12 +27,26 @@ namespace Monocular
 			Stage = new UIElement(new(0, 0, gd.PresentationParameters.BackBufferWidth, gd.PresentationParameters.BackBufferHeight));
 			Texture = cm.Load<Texture2D>("ui");
 
-			FontSystem = new FontSystem();
 			FontSystemDefaults.FontResolutionFactor = 1f;
-			FontSystemDefaults.KernelWidth = 0;
-			FontSystemDefaults.KernelHeight = 0;
+			FontSystem = new FontSystem();
 
-			FontSystem.AddFont(File.ReadAllBytes(@"Content\fonts\ProggyCleanSZ.ttf"));
+			/*foreach (var font in Directory.GetFiles(@"Content/fonts/"))
+			{
+				if (font.EndsWith("otf") || font.EndsWith("ttf"))
+				{
+					FontSystem.AddFont(File.ReadAllBytes(font));
+				}
+			}*/
+			FontSystem.AddFont(File.ReadAllBytes(@"Content/fonts/Sui Generis Rg.otf"));
+		}
+
+		public bool Input(KeyboardState ks, MouseInfo ms)
+		{
+			if (LeftMouseButtonCaptured && ms.LeftButton == ButtonState.Released)
+			{
+				LeftMouseButtonCaptured = false;
+			}
+			return Stage.Input(ks, ms);
 		}
 
 		public bool Input(KeyboardState ks, MouseState ms)
@@ -40,7 +55,7 @@ namespace Monocular
 			{
 				LeftMouseButtonCaptured = false;
 			}
-			return Stage.Input(ks, ms);
+			return Stage.Input(ks, MouseInfo.FromState(ms));
 		}
 
 		public void Update(float dt)
@@ -57,10 +72,11 @@ namespace Monocular
 			c.PosY = Padding;
 			Cursor.Push(c);
 
-			var rasterizer = new RasterizerState();
-			rasterizer.ScissorTestEnable = true;
-			sb.Begin(SpriteSortMode.Immediate, blendState: BlendState.NonPremultiplied, samplerState: SamplerState.PointClamp, rasterizerState: rasterizer);
+			//var rasterizer = new RasterizerState();
+			//rasterizer.ScissorTestEnable = true;
+			sb.Begin(SpriteSortMode.Deferred, blendState: BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);//, rasterizerState: rasterizer);
 			Stage.Render(sb);
+			Stage.RenderText(sb);
 			sb.End();
 		}
 

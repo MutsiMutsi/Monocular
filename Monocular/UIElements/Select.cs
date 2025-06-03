@@ -15,13 +15,13 @@ namespace Monocular.UIElements
 
 		private int index = 0;
 
-		public Select(Rect rect, string[] values, int defaultValue = 0, Align alignment = Align.TopLeft) : base(rect, alignment)
+		public Select(Rect rect, string[] values, int defaultValue = 0, int fontSize = 13, Align alignment = Align.TopLeft) : base(rect, alignment)
 		{
 			index = defaultValue;
 			Values = values;
-			valueLabel = new(Values[index]);
+			valueLabel = new(Values[index], fontSize){ Color = Color};
 
-			toggleLeft = new(new Rectangle(0, 24, 8, 16));
+			toggleLeft = new(new Rectangle(0, 24, 8, fontSize));
 			toggleLeft.OnStateChanged = (s) =>
 			{
 				switch (s)
@@ -40,7 +40,7 @@ namespace Monocular.UIElements
 				}
 			};
 
-			toggleRight = new(new Rectangle(8, 24, 8, 16));
+			toggleRight = new(new Rectangle(8, 24, 8, fontSize));
 			toggleRight.OnStateChanged = (s) =>
 			{
 				switch (s)
@@ -61,7 +61,9 @@ namespace Monocular.UIElements
 
 			var updateValue = () =>
 			{
-				valueLabel.Text = Values[index];
+				valueLabel.Text.Clear();
+				valueLabel.Text.Append(Values[index]);
+				valueLabel.Flush();
 				OnValueChanged?.Invoke(Values[index]);
 			};
 
